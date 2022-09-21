@@ -3,11 +3,13 @@ import one from "../images/one.png";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { auth, db, storage } from "../firebase";
-import { async } from "@firebase/util";
+
 import { doc, setDoc } from "firebase/firestore";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [err, setErr] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,17 +39,20 @@ const Register = () => {
               displayName,
               photoURL: downloadURL,
             });
+
             await setDoc(doc(db, "users", response.user.uid), {
               uid: response.user.uid,
               displayName,
               email,
               photoURL: downloadURL,
             });
+            await setDoc(doc(db, "userChats", response.user.uid), {});
+            navigate("/");
           });
         }
       );
 
-      console.log(response);
+      console.log("response from register", response);
     } catch (error) {
       setErr(true);
       console.log(error);
@@ -72,7 +77,9 @@ const Register = () => {
           {err && <span>there is an error</span>}
         </form>
 
-        <p>You do have an account? Login</p>
+        <p>
+          You do have an account? <Link to="/register">Login</Link>
+        </p>
       </div>
     </div>
   );
